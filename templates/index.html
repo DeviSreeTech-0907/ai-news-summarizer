@@ -1,532 +1,154 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#101022">
-    <meta name="description" content="Briefly AI turns news articles into clear summaries, key facts, and useful context.">
-    <title>Briefly AI | Intelligent News Analysis</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <header class="topbar">
-        <a class="brand" href="/">Briefly<span>AI</span></a>
-        <div class="tagline">Understand more. Read less.</div>
-    </header>
-
-    <main class="container">
-        <section class="hero">
-            <div class="eyebrow">YOUR PERSONAL NEWSROOM</div>
-            <h1>The world,<br><span>in brief.</span></h1>
-            <p>Discover important stories. Understand the facts. Get the bigger picture.</p>
-
-            <form id="searchForm" class="searchbar">
-                <input id="searchInput" type="search"
-                    placeholder="Search technology, business, science..."
-                    aria-label="Search news">
-                <button type="submit">Search</button>
-            </form>
-        </section>
-
-        <section class="summarizer panel" id="summarizer">
-            <div class="summary-heading">
-                <div>
-                    <div class="eyebrow">POWERED BY AI</div>
-                    <h2>News Intelligence</h2>
-                    <p>Turn an article into an actionable, structured briefing.</p>
-                </div>
-                <div class="ai-badge">✦ AI ANALYSIS</div>
-            </div>
-
-            <label for="articleInput">Article text</label>
-            <textarea id="articleInput" rows="7"
-                placeholder="Paste a news article here, or choose Analyze on any news card below..."></textarea>
-
-            <div class="summary-controls">
-                <span id="characterCount">0 characters</span>
-
-                <label class="summary-length-control" for="summaryLength">
-                    Summary length
-                    <select id="summaryLength">
-                        <option value="concise">Concise (50–80 words)</option>
-                        <option value="standard" selected>Standard (100–150 words)</option>
-                        <option value="detailed">Detailed (180–250 words)</option>
-                    </select>
-                </label>
-
-                <button id="summarizeBtn" class="primary" type="button">
-                    ✦ Analyze Article
-                </button>
-            </div>
-
-            <div id="summaryOutput" class="summary-output" aria-live="polite">
-                <div class="empty-state">
-                    <div class="empty-icon">✦</div>
-                    <h3>Your news briefing starts here</h3>
-                    <p>Choose an article or paste text above to see the overview, key developments, impact, and important facts.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="news-section">
-            <div class="section-heading">
-                <div>
-                    <div class="eyebrow">THE LATEST</div>
-                    <h2 id="newsHeading">Top Headlines</h2>
-                    <p>Stories selected from news sources.</p>
-                </div>
-                <button id="refreshBtn" class="secondary" type="button">
-                    ↻ Refresh
-                </button>
-            </div>
-
-            <nav class="categories" id="categories" aria-label="News categories">
-                <button class="category active" data-category="general">Top</button>
-                <button class="category" data-category="world">World</button>
-                <button class="category" data-category="nation">India</button>
-                <button class="category" data-category="technology">Technology</button>
-                <button class="category" data-category="business">Business</button>
-                <button class="category" data-category="science">Science</button>
-                <button class="category" data-category="health">Health</button>
-                <button class="category" data-category="sports">Sports</button>
-                <button class="category" data-category="entertainment">Entertainment</button>
-            </nav>
-
-            <p id="newsStatus" class="status" aria-live="polite">Loading news...</p>
-            <div id="newsGrid" class="news-grid"></div>
-        </section>
-    </main>
-
-    <footer>
-        <a class="brand footer-brand" href="/">Briefly<span>AI</span></a>
-        <p>News for curious minds. AI-generated analysis based on the provided article.</p>
-    </footer>
-
-    <script>
-        const grid = document.getElementById("newsGrid");
-        const statusText = document.getElementById("newsStatus");
-        const heading = document.getElementById("newsHeading");
-        const summaryOutput = document.getElementById("summaryOutput");
-        const articleInput = document.getElementById("articleInput");
-        const summarizeBtn = document.getElementById("summarizeBtn");
-        const characterCount = document.getElementById("characterCount");
-        const summaryLength = document.getElementById("summaryLength");
-
-        let currentCategory = "general";
-        let requestNumber = 0;
-
-        articleInput.addEventListener("input", () => {
-            characterCount.textContent =
-                `${articleInput.value.length.toLocaleString()} characters`;
-        });
-
-        async function loadNews(category = "general") {
-            currentCategory = category;
-
-            heading.textContent = category === "general"
-                ? "Top Headlines"
-                : category.charAt(0).toUpperCase() + category.slice(1) + " News";
-
-            document.querySelectorAll(".category").forEach(button => {
-                button.classList.toggle(
-                    "active", button.dataset.category === category
-                );
-            });
-
-            grid.replaceChildren();
-            statusText.textContent = "Loading news...";
-
-            try {
-                const response = await fetch(
-                    `/api/news?category=${encodeURIComponent(category)}`
-                );
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || "Could not load news.");
-                }
-
-                renderNews(data.articles || []);
-                statusText.textContent = data.articles?.length
-                    ? `${data.articles.length} stories`
-                    : "No articles found.";
-            } catch (error) {
-                statusText.textContent = error.message;
-            }
-        }
-
-        function renderNews(articles) {
-            grid.replaceChildren();
-
-            articles.forEach(article => {
-                const card = document.createElement("article");
-                card.className = "news-card";
-
-                if (article.image) {
-                    const image = document.createElement("img");
-                    image.src = article.image;
-                    image.alt = "";
-                    image.loading = "lazy";
-                    image.onerror = () => image.remove();
-                    card.appendChild(image);
-                }
-
-                const body = document.createElement("div");
-                body.className = "card-body";
-
-                const source = createElement(
-                    "div", "source", article.source?.name || "News source"
-                );
-                const title = createElement(
-                    "h3", "", article.title || "Untitled story"
-                );
-                const description = createElement(
-                    "p", "",
-                    article.description || "Open the article to read more."
-                );
-
-                const actions = createElement("div", "card-actions");
-
-                const analyzeButton = createElement(
-                    "button", "small-button", "✦ Analyze"
-                );
-                analyzeButton.type = "button";
-
-                analyzeButton.addEventListener("click", () => {
-                    const text = [
-                        article.title,
-                        article.description,
-                        article.content
-                    ].filter(Boolean).join("\n\n");
-
-                    articleInput.value = text;
-                    characterCount.textContent =
-                        `${text.length.toLocaleString()} characters`;
-
-                    document.getElementById("summarizer").scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-
-                    summarizeArticle(text);
-                });
-
-                const link = createElement(
-                    "a", "read-link", "Read article ↗"
-                );
-                link.href = article.url || "#";
-                link.target = "_blank";
-                link.rel = "noopener noreferrer";
-
-                actions.append(analyzeButton, link);
-                body.append(source, title, description, actions);
-                card.appendChild(body);
-                grid.appendChild(card);
-            });
-        }
-
-        function createElement(tag, className, text) {
-            const element = document.createElement(tag);
-
-            if (className) {
-                element.className = className;
-            }
-
-            if (text !== undefined) {
-                element.textContent = text;
-            }
-
-            return element;
-        }
-
-        function renderList(items) {
-            const list = createElement("ul", "analysis-list");
-
-            if (!Array.isArray(items) || items.length === 0) {
-                list.appendChild(createElement(
-                    "li", "", "No additional details provided."
-                ));
-                return list;
-            }
-
-            items.forEach(item => {
-                list.appendChild(createElement("li", "", String(item)));
-            });
-
-            return list;
-        }
-
-        function buildBriefing(data) {
-            return [
-                data.headline || "News Briefing",
-                "NEWS OVERVIEW\n" + (data.summary || ""),
-                "KEY DEVELOPMENTS\n" +
-                    (data.key_developments || [])
-                        .map(item => "- " + item).join("\n"),
-                "WHY IT MATTERS\n" + (data.why_it_matters || ""),
-                "IMPORTANT DETAILS\n" +
-                    (data.important_details || [])
-                        .map(item => "- " + item).join("\n"),
-                "SOURCE LIMITATIONS\n" + (data.source_limitations || ""),
-                "",
-                "AI-generated analysis. Verify important claims with the original reporting."
-            ].join("\n\n");
-        }
-
-        function renderSummary(data) {
-            summaryOutput.replaceChildren();
-
-            const header = createElement("div", "analysis-header");
-            header.appendChild(createElement(
-                "span", "eyebrow", "AI-GENERATED BRIEFING"
-            ));
-            header.appendChild(createElement(
-                "h3", "analysis-headline", data.headline || "News Analysis"
-            ));
-            header.appendChild(createElement(
-                "span", "analysis-mode", data.mode || "AI analysis"
-            ));
-            summaryOutput.appendChild(header);
-
-            const sections = [
-                {
-                    icon: "01",
-                    title: "News Overview",
-                    content: createElement(
-                        "p", "overview-text",
-                        data.summary || "No overview available."
-                    )
-                },
-                {
-                    icon: "02",
-                    title: "Key Developments",
-                    content: renderList(data.key_developments)
-                },
-                {
-                    icon: "03",
-                    title: "Why It Matters",
-                    content: createElement(
-                        "p", "impact-text",
-                        data.why_it_matters || "No additional context provided."
-                    )
-                },
-                {
-                    icon: "04",
-                    title: "Important Details",
-                    content: renderList(data.important_details)
-                },
-                {
-                    icon: "05",
-                    title: "Source Limitations",
-                    content: createElement(
-                        "p", "limitations-text",
-                        data.source_limitations || "No limitations reported by the AI."
-                    )
-                }
-            ];
-
-            const sectionGrid = createElement("div", "analysis-grid");
-
-            sections.forEach(section => {
-                const card = createElement("section", "analysis-card");
-                const sectionTitle = createElement(
-                    "h4", "analysis-section-title"
-                );
-
-                sectionTitle.appendChild(createElement(
-                    "span", "section-number", section.icon
-                ));
-                sectionTitle.appendChild(
-                    document.createTextNode(section.title)
-                );
-
-                card.appendChild(sectionTitle);
-                card.appendChild(section.content);
-                sectionGrid.appendChild(card);
-            });
-
-            summaryOutput.appendChild(sectionGrid);
-
-            summaryOutput.appendChild(createElement(
-                "p", "analysis-disclaimer",
-                "AI-generated analysis may contain errors. Verify important claims with the original reporting."
-            ));
-
-            const actions = createElement("div", "summary-actions");
-
-            const copyButton = createElement(
-                "button", "secondary", "Copy briefing"
-            );
-            copyButton.type = "button";
-
-            copyButton.addEventListener("click", async () => {
-                const briefing = buildBriefing(data);
-
-                try {
-                    await navigator.clipboard.writeText(briefing);
-                    copyButton.textContent = "Copied!";
-                } catch {
-                    // Fallback for browsers that block clipboard access.
-                    const temporary = document.createElement("textarea");
-                    temporary.value = briefing;
-                    temporary.setAttribute("readonly", "");
-                    temporary.style.position = "fixed";
-                    temporary.style.opacity = "0";
-                    document.body.appendChild(temporary);
-                    temporary.select();
-
-                    try {
-                        const copied = document.execCommand("copy");
-                        copyButton.textContent = copied
-                            ? "Copied!"
-                            : "Copy unavailable";
-                    } catch {
-                        copyButton.textContent = "Copy unavailable";
-                    } finally {
-                        temporary.remove();
-                    }
-                }
-
-                setTimeout(() => {
-                    copyButton.textContent = "Copy briefing";
-                }, 2000);
-            });
-
-            const downloadButton = createElement(
-                "button", "secondary", "Download .txt"
-            );
-            downloadButton.type = "button";
-
-            downloadButton.addEventListener("click", () => {
-                const briefing = buildBriefing(data);
-                const file = new Blob(
-                    [briefing],
-                    { type: "text/plain;charset=utf-8" }
-                );
-                const url = URL.createObjectURL(file);
-                const link = document.createElement("a");
-
-                const safeHeadline = (data.headline || "news-briefing")
-                    .replace(/[<>:"/\\|?*\x00-\x1F]/g, "")
-                    .trim()
-                    .replace(/\s+/g, "-")
-                    .slice(0, 70) || "news-briefing";
-
-                link.href = url;
-                link.download = `${safeHeadline}.txt`;
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-                URL.revokeObjectURL(url);
-            });
-
-            actions.append(copyButton, downloadButton);
-            summaryOutput.appendChild(actions);
-        }
-
-        async function summarizeArticle(article) {
-            const text = article.trim();
-
-            if (!text) {
-                summaryOutput.replaceChildren(createElement(
-                    "p", "error-message",
-                    "Please paste an article or choose a news story first."
-                ));
-                return;
-            }
-
-            const thisRequest = ++requestNumber;
-
-            summaryOutput.replaceChildren(createElement(
-                "div", "loading-state",
-                "✦ Analyzing article and preparing your briefing..."
-            ));
-
-            summarizeBtn.disabled = true;
-            summarizeBtn.textContent = "Analyzing...";
-
-            try {
-                const response = await fetch("/summarize", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        article: text,
-                        length: summaryLength.value
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || "Summary failed.");
-                }
-
-                if (thisRequest === requestNumber) {
-                    renderSummary(data);
-                }
-            } catch (error) {
-                if (thisRequest === requestNumber) {
-                    summaryOutput.replaceChildren(createElement(
-                        "p", "error-message", error.message
-                    ));
-                }
-            } finally {
-                if (thisRequest === requestNumber) {
-                    summarizeBtn.disabled = false;
-                    summarizeBtn.textContent = "✦ Analyze Article";
-                }
-            }
-        }
-
-        summarizeBtn.addEventListener("click", () => {
-            summarizeArticle(articleInput.value);
-        });
-
-        document.querySelectorAll(".category").forEach(button => {
-            button.addEventListener("click", () => {
-                loadNews(button.dataset.category);
-            });
-        });
-
-        document.getElementById("refreshBtn").addEventListener("click", () => {
-            loadNews(currentCategory);
-        });
-
-        document.getElementById("searchForm").addEventListener(
-            "submit", async event => {
-                event.preventDefault();
-
-                const query = document.getElementById("searchInput")
-                    .value.trim();
-
-                if (!query) return;
-
-                heading.textContent = `Search: ${query}`;
-                grid.replaceChildren();
-                statusText.textContent = "Searching news...";
-
-                try {
-                    const response = await fetch(
-                        `/api/search?q=${encodeURIComponent(query)}`
-                    );
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error || "Search failed.");
-                    }
-
-                    renderNews(data.articles || []);
-                    statusText.textContent = data.articles?.length
-                        ? `${data.articles.length} results`
-                        : "No articles found. Try another search.";
-                } catch (error) {
-                    statusText.textContent = error.message;
-                }
-            }
-        );
-
-        loadNews();
-    </script>
-</body>
-</html>
+/* Featured story and category navigation */
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 22px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--line);
+}
+
+.category {
+    padding: 8px 14px;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-family: Arial, sans-serif;
+    font-size: 0.83rem;
+    font-weight: 600;
+}
+
+.category:hover,
+.category.active {
+    color: var(--white);
+    background: var(--ink);
+    border-color: var(--ink);
+}
+
+.featured-news {
+    margin: 22px 0 30px;
+}
+
+.featured-story {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    overflow: hidden;
+    background: var(--paper-light);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.featured-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 330px;
+    object-fit: cover;
+    background: var(--soft);
+}
+
+.featured-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: clamp(22px, 4vw, 42px);
+}
+
+.featured-label {
+    margin-bottom: 16px;
+    padding-bottom: 6px;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+    font-family: Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.featured-title {
+    margin: 14px 0;
+    font-size: clamp(1.8rem, 3.4vw, 2.8rem);
+    line-height: 1.1;
+}
+
+.featured-description {
+    margin: 0 0 18px;
+    color: var(--muted);
+}
+
+.card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 12px;
+}
+
+.card-actions .read-link {
+    padding-top: 0;
+}
+
+.card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+}
+
+.card-body h3 {
+    margin: 10px 0;
+    font-size: 1.3rem;
+    line-height: 1.3;
+}
+
+.card-body p {
+    color: var(--muted);
+}
+
+.status {
+    color: var(--muted);
+    font-family: Arial, sans-serif;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 700px) {
+    .featured-story {
+        grid-template-columns: 1fr;
+    }
+
+    .featured-image {
+        height: 230px;
+        min-height: 0;
+    }
+
+    .featured-content {
+        padding: 22px;
+    }
+
+    .featured-title {
+        font-size: 2rem;
+    }
+
+    .header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .category {
+        padding: 7px 10px;
+    }
+}
