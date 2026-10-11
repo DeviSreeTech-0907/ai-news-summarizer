@@ -1,154 +1,520 @@
 
-/* Featured story and category navigation */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f8f7f3">
+    <meta name="description" content="Discover the latest news and understand every story faster with Briefly AI.">
+    <title>Briefly AI — The News, Clearly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="announcement">
+        <span class="live-dot"></span>
+        YOUR DAILY BRIEFING, REIMAGINED
+        <span class="announcement-date" id="todayDate"></span>
+    </div>
 
-.header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
+    <header class="masthead">
+        <a href="/" class="logo" aria-label="Briefly AI home">
+            <span class="logo-mark">B.</span>
+            <span>briefly<span class="logo-ai">AI</span></span>
+        </a>
 
-.categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 22px 0;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--line);
-}
+        <div class="masthead-center">
+            <span class="masthead-caption">INDEPENDENTLY CURIOUS.</span>
+            <span class="masthead-subcaption">INFORMED BY INTELLIGENCE.</span>
+        </div>
 
-.category {
-    padding: 8px 14px;
-    color: var(--ink);
-    background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    font-family: Arial, sans-serif;
-    font-size: 0.83rem;
-    font-weight: 600;
-}
+        <a href="#summarizer" class="header-cta">Summarize a story <span>↗</span></a>
+    </header>
 
-.category:hover,
-.category.active {
-    color: var(--white);
-    background: var(--ink);
-    border-color: var(--ink);
-}
+    <nav class="category-nav" aria-label="News categories">
+        <div class="nav-inner">
+            <span class="nav-label">EXPLORE</span>
+            <button class="category active" data-category="general">Top Stories</button>
+            <button class="category" data-category="technology">Technology</button>
+            <button class="category" data-category="business">Business</button>
+            <button class="category" data-category="science">Science</button>
+            <button class="category" data-category="health">Health</button>
+            <button class="category" data-category="world">World</button>
+        </div>
+    </nav>
 
-.featured-news {
-    margin: 22px 0 30px;
-}
+    <main class="page-shell">
+        <section class="lead-section">
+            <div class="section-overline">
+                <span class="overline-rule"></span>
+                <span id="sectionLabel">THE DAILY EDITION</span>
+                <span class="edition-number">NO. 001</span>
+            </div>
 
-.featured-story {
-    display: grid;
-    grid-template-columns: 1.15fr 1fr;
-    overflow: hidden;
-    background: var(--paper-light);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-}
+            <div class="lead-heading">
+                <div>
+                    <p class="serif-kicker">A clearer view of the world.</p>
+                    <h1>Know more.<br><em>Scroll less.</em></h1>
+                </div>
+                <p class="lead-description">
+                    The stories that matter, without the noise.
+                    Explore today's headlines and let AI help you
+                    understand the details that count.
+                </p>
+            </div>
+        </section>
 
-.featured-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: 330px;
-    object-fit: cover;
-    background: var(--soft);
-}
+        <section class="news-section" aria-labelledby="newsHeading">
+            <div class="section-title-row">
+                <div>
+                    <p class="small-kicker">CURATED FOR THE CURIOUS</p>
+                    <h2 id="newsHeading">Today's briefing<span>.</span></h2>
+                </div>
+                <button id="refreshNews" class="text-button" type="button">
+                    Refresh stories ↻
+                </button>
+            </div>
 
-.featured-content {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    padding: clamp(22px, 4vw, 42px);
-}
+            <div id="newsStatus" class="news-status" role="status" aria-live="polite">
+                Loading the latest headlines...
+            </div>
 
-.featured-label {
-    margin-bottom: 16px;
-    padding-bottom: 6px;
-    color: var(--accent);
-    border-bottom: 2px solid var(--accent);
-    font-family: Arial, sans-serif;
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-}
+            <div id="featuredNews" class="featured-news"></div>
+            <div id="newsGrid" class="news-grid"></div>
 
-.featured-title {
-    margin: 14px 0;
-    font-size: clamp(1.8rem, 3.4vw, 2.8rem);
-    line-height: 1.1;
-}
+            <div id="emptyNews" class="empty-news" hidden>
+                <span class="empty-news-icon">◌</span>
+                <h3>No stories to display</h3>
+                <p>News may be temporarily unavailable. Try refreshing the stories.</p>
+                <button class="outline-button" type="button" onclick="loadNews(currentCategory)">
+                    Try again
+                </button>
+            </div>
+        </section>
 
-.featured-description {
-    margin: 0 0 18px;
-    color: var(--muted);
-}
+        <section id="summarizer" class="summarizer-section">
+            <div class="summarizer-intro">
+                <p class="small-kicker">THE BRIEFLY AI DESK</p>
+                <h2>Every story has<br>a <em>shorter version.</em></h2>
+                <p>
+                    Found an interesting article? Paste its text below.
+                    Our AI will help turn the long read into a clear,
+                    concise summary.
+                </p>
+                <div class="desk-note">
+                    <span class="desk-note-icon">✳</span>
+                    <span>Less noise. More context. Better reading.</span>
+                </div>
+            </div>
 
-.card-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    margin-top: auto;
-    padding-top: 12px;
-}
+            <div class="summarizer-panel">
+                <div class="panel-topline">
+                    <span class="panel-number">01 / INPUT</span>
+                    <span class="panel-label">YOUR ARTICLE</span>
+                </div>
 
-.card-actions .read-link {
-    padding-top: 0;
-}
+                <label for="article">Paste article text</label>
+                <textarea
+                    id="article"
+                    rows="8"
+                    placeholder="Paste the full text of a news article here..."
+                ></textarea>
 
-.card-body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 20px;
-}
+                <div class="input-meta">
+                    <span id="charCount">0 characters</span>
+                    <span id="wordCount">0 words</span>
+                </div>
 
-.card-body h3 {
-    margin: 10px 0;
-    font-size: 1.3rem;
-    line-height: 1.3;
-}
+                <button id="summarizeBtn" class="summarize-button" type="button">
+                    <span>✳</span>
+                    <span id="buttonText">Summarize with AI</span>
+                    <span class="button-arrow">→</span>
+                </button>
 
-.card-body p {
-    color: var(--muted);
-}
+                <p class="input-footnote">
+                    AI-generated summaries may omit context. Check important
+                    details against the original article.
+                </p>
 
-.status {
-    color: var(--muted);
-    font-family: Arial, sans-serif;
-    font-size: 0.85rem;
-}
+                <div id="summaryStatus" class="summary-status" role="status" aria-live="polite"></div>
 
-@media (max-width: 700px) {
-    .featured-story {
-        grid-template-columns: 1fr;
-    }
+                <div id="summaryOutput" class="summary-output" hidden>
+                    <div class="summary-output-header">
+                        <div>
+                            <p class="panel-number">02 / THE BRIEF</p>
+                            <h3>Your story, simplified.</h3>
+                        </div>
+                        <button id="copySummary" class="copy-button" type="button">Copy text</button>
+                    </div>
+                    <div id="summaryText" class="summary-text"></div>
+                    <p class="summary-disclaimer">Prepared by AI · Verify key facts with the original source.</p>
+                </div>
+            </div>
+        </section>
 
-    .featured-image {
-        height: 230px;
-        min-height: 0;
-    }
+        <section class="closing-note">
+            <span class="closing-star">✳</span>
+            <p>Stay curious. Stay informed. Make every read count.</p>
+        </section>
+    </main>
 
-    .featured-content {
-        padding: 22px;
-    }
+    <footer class="site-footer">
+        <a href="/" class="footer-logo">briefly<span>AI</span></a>
+        <p>The news, clearly.</p>
+        <span class="footer-meta">READ WITH INTENTION · © <span id="year"></span></span>
+    </footer>
 
-    .featured-title {
-        font-size: 2rem;
-    }
+    <script>
+        const articleInput = document.getElementById("article");
+        const summarizeBtn = document.getElementById("summarizeBtn");
+        const buttonText = document.getElementById("buttonText");
+        const summaryStatus = document.getElementById("summaryStatus");
+        const summaryOutput = document.getElementById("summaryOutput");
+        const summaryText = document.getElementById("summaryText");
+        const newsStatus = document.getElementById("newsStatus");
+        const featuredNews = document.getElementById("featuredNews");
+        const newsGrid = document.getElementById("newsGrid");
+        const emptyNews = document.getElementById("emptyNews");
 
-    .header-inner {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 4px;
-    }
+        let currentCategory = "general";
+        let currentSummary = "";
 
-    .category {
-        padding: 7px 10px;
-    }
-}
+        document.getElementById("todayDate").textContent =
+            new Intl.DateTimeFormat("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            }).format(new Date()).toUpperCase();
+
+        document.getElementById("year").textContent = new Date().getFullYear();
+
+        articleInput.addEventListener("input", () => {
+            const text = articleInput.value.trim();
+            document.getElementById("charCount").textContent =
+                articleInput.value.length.toLocaleString() + " characters";
+            document.getElementById("wordCount").textContent =
+                (text ? text.split(/\s+/).length : 0) + " words";
+        });
+
+        function safeText(value, fallback = "") {
+            return typeof value === "string" && value.trim()
+                ? value.trim()
+                : fallback;
+        }
+
+        function getArticleList(data) {
+            if (Array.isArray(data)) return data;
+            if (data && Array.isArray(data.articles)) return data.articles;
+            if (data && Array.isArray(data.news)) return data.news;
+            if (data && Array.isArray(data.results)) return data.results;
+            if (data && Array.isArray(data.data)) return data.data;
+            return [];
+        }
+
+        function articleTitle(item) {
+            return safeText(item.title || item.headline, "Untitled story");
+        }
+
+        function articleDescription(item) {
+            return safeText(
+                item.description || item.summary || item.content || item.text,
+                "Open the original article to learn more about this story."
+            );
+        }
+
+        function articleImage(item) {
+            return safeText(
+                item.image || item.image_url || item.urlToImage || item.thumbnail,
+                ""
+            );
+        }
+
+        function articleUrl(item) {
+            const value = safeText(item.url || item.link, "");
+            try {
+                const parsed = new URL(value, window.location.origin);
+                if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+                    return parsed.href;
+                }
+            } catch (error) {}
+            return "";
+        }
+
+        function articleSource(item) {
+            if (typeof item.source === "string") return item.source;
+            if (item.source && typeof item.source.name === "string") {
+                return item.source.name;
+            }
+            return "LATEST NEWS";
+        }
+
+        function articleDate(item) {
+            const raw = item.publishedAt || item.published_at || item.date;
+            if (!raw) return "";
+            const date = new Date(raw);
+            if (Number.isNaN(date.getTime())) return "";
+            return date.toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+            });
+        }
+
+        function makeStory(item, featured = false) {
+            const card = document.createElement("article");
+            card.className = featured ? "featured-story" : "news-card";
+
+            const title = articleTitle(item);
+            const description = articleDescription(item);
+            const source = articleSource(item);
+            const url = articleUrl(item);
+            const image = articleImage(item);
+            const date = articleDate(item);
+
+            if (image) {
+                const imageWrap = document.createElement("div");
+                imageWrap.className = featured ? "featured-image-wrap" : "card-image-wrap";
+
+                const img = document.createElement("img");
+                img.className = featured ? "featured-image" : "card-image";
+                img.src = image;
+                img.alt = "";
+                img.loading = "lazy";
+                img.onerror = () => imageWrap.remove();
+
+                imageWrap.appendChild(img);
+                card.appendChild(imageWrap);
+            }
+
+            const body = document.createElement("div");
+            body.className = featured ? "featured-body" : "news-card-body";
+
+            const meta = document.createElement("div");
+            meta.className = "story-meta";
+
+            const sourceSpan = document.createElement("span");
+            sourceSpan.className = "story-source";
+            sourceSpan.textContent = source;
+
+            meta.appendChild(sourceSpan);
+
+            if (date) {
+                const dateSpan = document.createElement("span");
+                dateSpan.textContent = date;
+                meta.appendChild(dateSpan);
+            }
+
+            const heading = document.createElement("h3");
+            heading.textContent = title;
+
+            const descriptionEl = document.createElement("p");
+            descriptionEl.className = featured
+                ? "featured-description"
+                : "news-card-description";
+            descriptionEl.textContent = description;
+
+            const actions = document.createElement("div");
+            actions.className = "story-actions";
+
+            const summarizeLink = document.createElement("button");
+            summarizeLink.type = "button";
+            summarizeLink.className = "story-summarize";
+            summarizeLink.textContent = "Summarize this →";
+            summarizeLink.addEventListener("click", () => {
+                articleInput.value = [title, description].join("\n\n");
+                articleInput.dispatchEvent(new Event("input"));
+                document.getElementById("summarizer").scrollIntoView({
+                    behavior: "smooth"
+                });
+                articleInput.focus({ preventScroll: true });
+            });
+
+            actions.appendChild(summarizeLink);
+
+            if (url) {
+                const readLink = document.createElement("a");
+                readLink.href = url;
+                readLink.target = "_blank";
+                readLink.rel = "noopener noreferrer";
+                readLink.className = "read-link";
+                readLink.textContent = "Read original ↗";
+                actions.appendChild(readLink);
+            }
+
+            body.append(meta, heading, descriptionEl, actions);
+            card.appendChild(body);
+            return card;
+        }
+
+        async function loadNews(category = "general") {
+            currentCategory = category;
+            featuredNews.replaceChildren();
+            newsGrid.replaceChildren();
+            emptyNews.hidden = true;
+            newsStatus.hidden = false;
+            newsStatus.textContent = "Loading the latest headlines...";
+            newsStatus.className = "news-status";
+
+            document.querySelectorAll(".category").forEach(button => {
+                const active = button.dataset.category === category;
+                button.classList.toggle("active", active);
+                button.setAttribute("aria-pressed", String(active));
+            });
+
+            const categoryLabels = {
+                general: "THE DAILY EDITION",
+                technology: "TECHNOLOGY EDITION",
+                business: "BUSINESS EDITION",
+                science: "SCIENCE EDITION",
+                health: "HEALTH EDITION",
+                world: "WORLD EDITION"
+            };
+            document.getElementById("sectionLabel").textContent =
+                categoryLabels[category] || "THE DAILY EDITION";
+
+            try {
+                const response = await fetch(
+                    "/api/news?category=" + encodeURIComponent(category),
+                    { headers: { "Accept": "application/json" } }
+                );
+
+                if (!response.ok) {
+                    throw new Error("News service returned HTTP " + response.status);
+                }
+
+                const data = await response.json();
+                const articles = getArticleList(data).filter(item => item && typeof item === "object");
+
+                if (!articles.length) {
+                    throw new Error("No news articles were returned by the news API.");
+                }
+
+                featuredNews.appendChild(makeStory(articles[0], true));
+                articles.slice(1, 7).forEach(item => {
+                    newsGrid.appendChild(makeStory(item));
+                });
+
+                newsStatus.textContent = "Showing " + Math.min(articles.length, 7) +
+                    " stories · " + (categoryLabels[category] || "LATEST NEWS");
+                newsStatus.className = "news-status news-status-success";
+                emptyNews.hidden = true;
+            } catch (error) {
+                newsStatus.textContent =
+                    "We couldn't load the headlines. You can still paste an article below to summarize it.";
+                newsStatus.className = "news-status news-status-error";
+                emptyNews.hidden = false;
+                console.error("News loading error:", error);
+            }
+        }
+
+        document.querySelectorAll(".category").forEach(button => {
+            button.addEventListener("click", () => {
+                loadNews(button.dataset.category);
+            });
+        });
+
+        document.getElementById("refreshNews").addEventListener("click", () => {
+            loadNews(currentCategory);
+        });
+
+        summarizeBtn.addEventListener("click", summarizeNews);
+
+        async function summarizeNews() {
+            const article = articleInput.value.trim();
+
+            if (!article) {
+                showSummaryStatus("Paste a news article before summarizing.", "error");
+                articleInput.focus();
+                return;
+            }
+
+            summarizeBtn.disabled = true;
+            buttonText.textContent = "Summarizing...";
+            summaryOutput.hidden = true;
+            showSummaryStatus("", "");
+
+            const loading = document.createElement("div");
+            loading.className = "summary-loading";
+            loading.id = "summaryLoading";
+
+            const spinner = document.createElement("span");
+            spinner.className = "mini-spinner";
+
+            const loadingText = document.createElement("span");
+            loadingText.textContent = "AI is reading your article...";
+
+            loading.append(spinner, loadingText);
+            summaryStatus.appendChild(loading);
+
+            try {
+                const response = await fetch("/summarize", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({ article: article })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.error || data.message || "The server could not summarize this article."
+                    );
+                }
+
+                if (!data.summary || typeof data.summary !== "string") {
+                    throw new Error(
+                        data.error || data.message || "The server did not return a summary."
+                    );
+                }
+
+                currentSummary = data.summary;
+                summaryText.textContent = currentSummary;
+                summaryOutput.hidden = false;
+                showSummaryStatus("Summary generated successfully.", "success");
+
+                summaryOutput.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+            } catch (error) {
+                showSummaryStatus(
+                    error.message || "Something went wrong. Please try again.",
+                    "error"
+                );
+            } finally {
+                summarizeBtn.disabled = false;
+                buttonText.textContent = "Summarize with AI";
+            }
+        }
+
+        function showSummaryStatus(message, type) {
+            summaryStatus.replaceChildren();
+            summaryStatus.className = "summary-status" + (type ? " " + type : "");
+
+            if (message) {
+                summaryStatus.textContent = message;
+            }
+        }
+
+        document.getElementById("copySummary").addEventListener("click", async () => {
+            if (!currentSummary) return;
+
+            try {
+                await navigator.clipboard.writeText(currentSummary);
+                document.getElementById("copySummary").textContent = "Copied!";
+            } catch (error) {
+                const range = document.createRange();
+                range.selectNodeContents(summaryText);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                document.getElementById("copySummary").textContent = "Select and copy";
+            }
+        });
+
+        loadNews();
+    </script>
+</body>
+</html>
