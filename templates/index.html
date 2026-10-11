@@ -4,449 +4,671 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f8f7f3">
-    <meta name="description" content="Discover the latest news and understand every story faster with Briefly AI.">
-    <title>Briefly AI — The News, Clearly</title>
+    <meta name="theme-color" content="#f7f6f2">
+    <meta name="description" content="Briefly AI helps you explore the latest news and understand important stories faster.">
+    <title>Briefly AI — Know More. Scroll Less.</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="announcement">
-        <span class="live-dot"></span>
-        YOUR DAILY BRIEFING, REIMAGINED
-        <span class="announcement-date" id="todayDate"></span>
-    </div>
+    <header class="site-header">
+        <div class="masthead">
+            <a href="/" class="brand" aria-label="Briefly AI home">
+                <span class="brand-icon">B.</span>
+                <span>Briefly <span class="brand-ai">AI</span></span>
+            </a>
 
-    <header class="masthead">
-        <a href="/" class="logo" aria-label="Briefly AI home">
-            <span class="logo-mark">B.</span>
-            <span>briefly<span class="logo-ai">AI</span></span>
-        </a>
+            <p class="masthead-note">THE WORLD, MADE CLEARER.</p>
 
-        <div class="masthead-center">
-            <span class="masthead-caption">INDEPENDENTLY CURIOUS.</span>
-            <span class="masthead-subcaption">INFORMED BY INTELLIGENCE.</span>
+            <div class="header-actions">
+                <button id="themeToggle" class="theme-toggle" type="button">
+                    <span id="themeIcon">☾</span>
+                    <span id="themeLabel">Dark mode</span>
+                </button>
+                <a href="#summarizer" class="header-cta">AI Summarizer ↗</a>
+            </div>
         </div>
 
-        <a href="#summarizer" class="header-cta">Summarize a story <span>↗</span></a>
+        <nav class="category-nav" aria-label="News categories">
+            <button class="category-button active" data-category="general">Top Stories</button>
+            <button class="category-button" data-category="technology">Technology</button>
+            <button class="category-button" data-category="business">Business</button>
+            <button class="category-button" data-category="science">Science</button>
+            <button class="category-button" data-category="health">Health</button>
+            <button class="category-button" data-category="world">World</button>
+        </nav>
+
+        <div class="ticker">
+            <span class="ticker-label"><span class="live-dot"></span> NEWS BRIEF</span>
+            <div class="ticker-window">
+                <div id="tickerTrack" class="ticker-track">
+                    <span class="ticker-message">Welcome to Briefly AI — your daily news briefing.</span>
+                </div>
+            </div>
+            <button id="tickerToggle" class="ticker-control" type="button"
+                    aria-label="Pause headline ticker">Ⅱ</button>
+        </div>
     </header>
 
-    <nav class="category-nav" aria-label="News categories">
-        <div class="nav-inner">
-            <span class="nav-label">EXPLORE</span>
-            <button class="category active" data-category="general">Top Stories</button>
-            <button class="category" data-category="technology">Technology</button>
-            <button class="category" data-category="business">Business</button>
-            <button class="category" data-category="science">Science</button>
-            <button class="category" data-category="health">Health</button>
-            <button class="category" data-category="world">World</button>
-        </div>
-    </nav>
-
     <main class="page-shell">
-        <section class="lead-section">
-            <div class="section-overline">
-                <span class="overline-rule"></span>
-                <span id="sectionLabel">THE DAILY EDITION</span>
-                <span class="edition-number">NO. 001</span>
+        <section class="intro-section">
+            <div class="intro-copy">
+                <p class="eyebrow">YOUR DAILY INTELLIGENCE BRIEFING</p>
+                <h1>Know more.<br><span>Scroll less.</span></h1>
+                <p class="intro-description">
+                    Important stories, clear summaries, and less noise.
+                    Stay informed without spending all day reading.
+                </p>
+                <a href="#latest-news" class="primary-link">Explore today's news <span>↓</span></a>
             </div>
 
-            <div class="lead-heading">
-                <div>
-                    <p class="serif-kicker">A clearer view of the world.</p>
-                    <h1>Know more.<br><em>Scroll less.</em></h1>
+            <div class="intro-card">
+                <div class="intro-card-top">
+                    <span class="mini-label">THE BRIEFLY AI METHOD</span>
+                    <span class="sparkle">✳</span>
                 </div>
-                <p class="lead-description">
-                    The stories that matter, without the noise.
-                    Explore today's headlines and let AI help you
-                    understand the details that count.
-                </p>
+                <div class="method-step">
+                    <span class="step-number">01</span>
+                    <div>
+                        <strong>Discover</strong>
+                        <p>Explore stories from different categories.</p>
+                    </div>
+                </div>
+                <div class="method-step">
+                    <span class="step-number">02</span>
+                    <div>
+                        <strong>Understand</strong>
+                        <p>Use AI to make long articles easier to read.</p>
+                    </div>
+                </div>
+                <div class="method-step">
+                    <span class="step-number">03</span>
+                    <div>
+                        <strong>Save</strong>
+                        <p>Bookmark stories you want to revisit.</p>
+                    </div>
+                </div>
+                <div class="intro-card-footer">LESS NOISE. MORE KNOWLEDGE.</div>
             </div>
         </section>
 
-        <section class="news-section" aria-labelledby="newsHeading">
-            <div class="section-title-row">
+        <section id="latest-news" class="news-section">
+            <div class="section-heading">
                 <div>
-                    <p class="small-kicker">CURATED FOR THE CURIOUS</p>
-                    <h2 id="newsHeading">Today's briefing<span>.</span></h2>
+                    <p class="eyebrow">THE LATEST</p>
+                    <h2>Today's briefing<span class="heading-period">.</span></h2>
+                    <p id="newsSubtitle" class="section-description">
+                        The stories worth your attention.
+                    </p>
                 </div>
-                <button id="refreshNews" class="text-button" type="button">
-                    Refresh stories ↻
-                </button>
+                <button id="refreshNews" class="secondary-button" type="button">↻ Refresh</button>
             </div>
 
-            <div id="newsStatus" class="news-status" role="status" aria-live="polite">
-                Loading the latest headlines...
+            <div id="newsStatus" class="status-message" role="status">
+                Loading the latest news...
             </div>
-
             <div id="featuredNews" class="featured-news"></div>
             <div id="newsGrid" class="news-grid"></div>
+        </section>
 
-            <div id="emptyNews" class="empty-news" hidden>
-                <span class="empty-news-icon">◌</span>
-                <h3>No stories to display</h3>
-                <p>News may be temporarily unavailable. Try refreshing the stories.</p>
-                <button class="outline-button" type="button" onclick="loadNews(currentCategory)">
-                    Try again
-                </button>
+        <section id="saved-stories" class="saved-section">
+            <div class="section-heading saved-heading">
+                <div>
+                    <p class="eyebrow">YOUR READING LIST</p>
+                    <h2>Saved stories<span class="heading-period">.</span></h2>
+                    <p class="section-description">
+                        Your bookmarked articles, saved in this browser.
+                    </p>
+                </div>
+                <span id="savedCount" class="saved-count">0 saved</span>
             </div>
+
+            <div id="savedEmpty" class="saved-empty">
+                <span class="saved-empty-icon">♡</span>
+                <h3>Your reading list starts here</h3>
+                <p>Press the bookmark icon on any story to save it for later.</p>
+            </div>
+            <div id="savedGrid" class="news-grid saved-grid"></div>
         </section>
 
         <section id="summarizer" class="summarizer-section">
             <div class="summarizer-intro">
-                <p class="small-kicker">THE BRIEFLY AI DESK</p>
-                <h2>Every story has<br>a <em>shorter version.</em></h2>
+                <p class="eyebrow">POWERED BY AI</p>
+                <h2>Big story.<br><span>Small summary.</span></h2>
                 <p>
-                    Found an interesting article? Paste its text below.
-                    Our AI will help turn the long read into a clear,
-                    concise summary.
+                    Paste an article below and let Briefly AI help you
+                    understand its key points faster.
                 </p>
-                <div class="desk-note">
-                    <span class="desk-note-icon">✳</span>
-                    <span>Less noise. More context. Better reading.</span>
-                </div>
+                <div class="summary-benefit"><span>✓</span> Clear, concise explanations</div>
+                <div class="summary-benefit"><span>✓</span> Less time reading long articles</div>
+                <div class="summary-benefit"><span>✓</span> Easy-to-read results</div>
             </div>
 
             <div class="summarizer-panel">
-                <div class="panel-topline">
-                    <span class="panel-number">01 / INPUT</span>
-                    <span class="panel-label">YOUR ARTICLE</span>
+                <label for="articleInput" class="input-label">YOUR ARTICLE</label>
+                <textarea id="articleInput" rows="9"
+                    placeholder="Paste your news article or article text here..."></textarea>
+
+                <div class="input-footer">
+                    <span id="characterCount">0 characters</span>
+                    <button id="clearArticle" class="text-button" type="button">Clear text</button>
                 </div>
 
-                <label for="article">Paste article text</label>
-                <textarea
-                    id="article"
-                    rows="8"
-                    placeholder="Paste the full text of a news article here..."
-                ></textarea>
-
-                <div class="input-meta">
-                    <span id="charCount">0 characters</span>
-                    <span id="wordCount">0 words</span>
-                </div>
-
-                <button id="summarizeBtn" class="summarize-button" type="button">
-                    <span>✳</span>
-                    <span id="buttonText">Summarize with AI</span>
-                    <span class="button-arrow">→</span>
+                <button id="summarizeButton" class="summarize-button" type="button">
+                    <span id="summarizeButtonText">✦ Summarize with AI</span>
                 </button>
 
-                <p class="input-footnote">
-                    AI-generated summaries may omit context. Check important
-                    details against the original article.
-                </p>
+                <div id="summaryStatus" class="summary-status" role="status"></div>
 
-                <div id="summaryStatus" class="summary-status" role="status" aria-live="polite"></div>
-
-                <div id="summaryOutput" class="summary-output" hidden>
-                    <div class="summary-output-header">
+                <div id="summaryResult" class="summary-result" hidden>
+                    <div class="summary-result-heading">
                         <div>
-                            <p class="panel-number">02 / THE BRIEF</p>
-                            <h3>Your story, simplified.</h3>
+                            <p class="eyebrow">YOUR AI BRIEFING</p>
+                            <h3>Here's the short version.</h3>
                         </div>
-                        <button id="copySummary" class="copy-button" type="button">Copy text</button>
+                        <button id="copySummary" class="secondary-button" type="button">
+                            Copy summary
+                        </button>
                     </div>
                     <div id="summaryText" class="summary-text"></div>
-                    <p class="summary-disclaimer">Prepared by AI · Verify key facts with the original source.</p>
                 </div>
             </div>
         </section>
 
         <section class="closing-note">
             <span class="closing-star">✳</span>
-            <p>Stay curious. Stay informed. Make every read count.</p>
+            <p>Stay curious. Stay informed.</p>
+            <span class="closing-subtitle">A little clarity goes a long way.</span>
         </section>
     </main>
 
     <footer class="site-footer">
-        <a href="/" class="footer-logo">briefly<span>AI</span></a>
-        <p>The news, clearly.</p>
-        <span class="footer-meta">READ WITH INTENTION · © <span id="year"></span></span>
+        <a href="/" class="footer-brand">Briefly <span>AI</span></a>
+        <p>News made easier to understand.</p>
+        <a href="#latest-news" class="back-to-top">Back to top ↑</a>
     </footer>
 
     <script>
-        const articleInput = document.getElementById("article");
-        const summarizeBtn = document.getElementById("summarizeBtn");
-        const buttonText = document.getElementById("buttonText");
-        const summaryStatus = document.getElementById("summaryStatus");
-        const summaryOutput = document.getElementById("summaryOutput");
-        const summaryText = document.getElementById("summaryText");
-        const newsStatus = document.getElementById("newsStatus");
+        const API_NEWS_URL = "/api/news";
+        const SUMMARIZE_URL = "/summarize";
+        const STORAGE_BOOKMARKS = "brieflyAI_savedStories";
+        const STORAGE_THEME = "brieflyAI_theme";
+
         const featuredNews = document.getElementById("featuredNews");
         const newsGrid = document.getElementById("newsGrid");
-        const emptyNews = document.getElementById("emptyNews");
+        const newsStatus = document.getElementById("newsStatus");
+        const newsSubtitle = document.getElementById("newsSubtitle");
+        const savedGrid = document.getElementById("savedGrid");
+        const savedEmpty = document.getElementById("savedEmpty");
+        const savedCount = document.getElementById("savedCount");
+        const tickerTrack = document.getElementById("tickerTrack");
+        const tickerToggle = document.getElementById("tickerToggle");
+        const articleInput = document.getElementById("articleInput");
+        const characterCount = document.getElementById("characterCount");
+        const summarizeButton = document.getElementById("summarizeButton");
+        const summarizeButtonText = document.getElementById("summarizeButtonText");
+        const summaryStatus = document.getElementById("summaryStatus");
+        const summaryResult = document.getElementById("summaryResult");
+        const summaryText = document.getElementById("summaryText");
 
         let currentCategory = "general";
-        let currentSummary = "";
+        let tickerPaused = false;
+        let summaryInProgress = false;
 
-        document.getElementById("todayDate").textContent =
-            new Intl.DateTimeFormat("en-IN", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-            }).format(new Date()).toUpperCase();
-
-        document.getElementById("year").textContent = new Date().getFullYear();
-
-        articleInput.addEventListener("input", () => {
-            const text = articleInput.value.trim();
-            document.getElementById("charCount").textContent =
-                articleInput.value.length.toLocaleString() + " characters";
-            document.getElementById("wordCount").textContent =
-                (text ? text.split(/\s+/).length : 0) + " words";
-        });
-
-        function safeText(value, fallback = "") {
-            return typeof value === "string" && value.trim()
-                ? value.trim()
-                : fallback;
+        function readStorage(key, fallback) {
+            try {
+                const stored = localStorage.getItem(key);
+                return stored === null ? fallback : JSON.parse(stored);
+            } catch (error) {
+                return fallback;
+            }
         }
 
-        function getArticleList(data) {
-            if (Array.isArray(data)) return data;
-            if (data && Array.isArray(data.articles)) return data.articles;
-            if (data && Array.isArray(data.news)) return data.news;
-            if (data && Array.isArray(data.results)) return data.results;
-            if (data && Array.isArray(data.data)) return data.data;
-            return [];
+        function writeStorage(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+                return true;
+            } catch (error) {
+                console.warn("Could not save browser data.", error);
+                return false;
+            }
+        }
+
+        function getSavedStories() {
+            const stories = readStorage(STORAGE_BOOKMARKS, []);
+            return Array.isArray(stories) ? stories : [];
         }
 
         function articleTitle(item) {
-            return safeText(item.title || item.headline, "Untitled story");
+            return String(item?.title || item?.headline || "Untitled story");
         }
 
         function articleDescription(item) {
-            return safeText(
-                item.description || item.summary || item.content || item.text,
-                "Open the original article to learn more about this story."
+            return String(
+                item?.description ||
+                item?.summary ||
+                item?.content ||
+                item?.text ||
+                "Open the original article to read more about this story."
             );
         }
 
         function articleImage(item) {
-            return safeText(
-                item.image || item.image_url || item.urlToImage || item.thumbnail,
-                ""
-            );
+            return item?.image ||
+                item?.image_url ||
+                item?.imageUrl ||
+                item?.urlToImage ||
+                item?.thumbnail ||
+                item?.thumbnail_url ||
+                "";
         }
 
         function articleUrl(item) {
-            const value = safeText(item.url || item.link, "");
-            try {
-                const parsed = new URL(value, window.location.origin);
-                if (parsed.protocol === "https:" || parsed.protocol === "http:") {
-                    return parsed.href;
-                }
-            } catch (error) {}
-            return "";
+            return item?.url ||
+                item?.link ||
+                item?.article_url ||
+                item?.web_url ||
+                "";
         }
 
         function articleSource(item) {
-            if (typeof item.source === "string") return item.source;
-            if (item.source && typeof item.source.name === "string") {
-                return item.source.name;
+            const source = item?.source;
+            if (typeof source === "string") return source;
+            if (source && typeof source === "object") {
+                return source.name || source.title || "News source";
             }
-            return "LATEST NEWS";
+            return item?.source_name || item?.publisher || "News";
         }
 
         function articleDate(item) {
-            const raw = item.publishedAt || item.published_at || item.date;
-            if (!raw) return "";
-            const date = new Date(raw);
-            if (Number.isNaN(date.getTime())) return "";
-            return date.toLocaleDateString("en-IN", {
+            const rawDate = item?.publishedAt ||
+                item?.published_at ||
+                item?.published ||
+                item?.date ||
+                "";
+
+            if (!rawDate) return "";
+
+            const date = new Date(rawDate);
+            if (Number.isNaN(date.getTime())) return String(rawDate);
+
+            return date.toLocaleDateString(undefined, {
                 day: "numeric",
                 month: "short",
                 year: "numeric"
             });
         }
 
-        function makeStory(item, featured = false) {
-            const card = document.createElement("article");
-            card.className = featured ? "featured-story" : "news-card";
+        function getArticleList(data) {
+            if (Array.isArray(data)) return data;
 
-            const title = articleTitle(item);
-            const description = articleDescription(item);
-            const source = articleSource(item);
+            if (data && typeof data === "object") {
+                for (const key of ["articles", "news", "results", "data"]) {
+                    if (Array.isArray(data[key])) return data[key];
+
+                    if (data[key] && Array.isArray(data[key].articles)) {
+                        return data[key].articles;
+                    }
+                }
+            }
+
+            return [];
+        }
+
+        function storyKey(item) {
             const url = articleUrl(item);
-            const image = articleImage(item);
+            return url ? url.trim() : articleTitle(item).trim().toLowerCase();
+        }
+
+        function isBookmarked(item) {
+            const key = storyKey(item);
+            return getSavedStories().some(story => storyKey(story) === key);
+        }
+
+        function createElement(tag, className, text) {
+            const element = document.createElement(tag);
+            if (className) element.className = className;
+            if (text !== undefined) element.textContent = text;
+            return element;
+        }
+
+        function updateBookmarkButtons() {
+            const savedStories = getSavedStories();
+
+            document.querySelectorAll(".bookmark-button[data-bookmark-key]").forEach(button => {
+                const key = button.dataset.bookmarkKey;
+                const saved = savedStories.some(story => storyKey(story) === key);
+
+                button.classList.toggle("is-bookmarked", saved);
+                button.textContent = saved ? "♥" : "♡";
+                button.setAttribute("aria-label", saved ? "Remove saved story" : "Save story");
+                button.title = saved ? "Remove saved story" : "Save story";
+            });
+        }
+
+        function toggleBookmark(item) {
+            const key = storyKey(item);
+            const savedStories = getSavedStories();
+            const exists = savedStories.some(story => storyKey(story) === key);
+
+            const updatedStories = exists
+                ? savedStories.filter(story => storyKey(story) !== key)
+                : [item, ...savedStories];
+
+            if (!writeStorage(STORAGE_BOOKMARKS, updatedStories)) {
+                alert("Your browser could not save this story. Check your browser storage settings.");
+                return;
+            }
+
+            renderSavedStories();
+            updateBookmarkButtons();
+        }
+
+        function createBookmarkButton(item) {
+            const button = createElement("button", "bookmark-button");
+            button.type = "button";
+            button.dataset.bookmarkKey = storyKey(item);
+            button.addEventListener("click", () => toggleBookmark(item));
+            return button;
+        }
+
+        function makeStory(item, featured = false, savedView = false) {
+            const card = createElement(
+                "article",
+                featured ? "story-card featured-story" : "story-card"
+            );
+
+            const imageUrl = articleImage(item);
+
+            if (imageUrl) {
+                try {
+                    const parsedImageUrl = new URL(imageUrl, window.location.href);
+
+                    if (["http:", "https:"].includes(parsedImageUrl.protocol)) {
+                        const imageWrap = createElement("div", "story-image-wrap");
+                        const image = document.createElement("img");
+
+                        image.src = parsedImageUrl.href;
+                        image.alt = articleTitle(item);
+                        image.loading = "lazy";
+                        image.onerror = () => imageWrap.remove();
+
+                        imageWrap.appendChild(image);
+                        card.appendChild(imageWrap);
+                    }
+                } catch (error) {
+                    // Continue without an image if the URL is invalid.
+                }
+            }
+
+            const body = createElement("div", "story-body");
+            const meta = createElement("div", "story-meta");
+
+            meta.appendChild(createElement("span", "story-source", articleSource(item)));
+
             const date = articleDate(item);
+            if (date) meta.appendChild(createElement("span", "story-date", date));
 
-            if (image) {
-                const imageWrap = document.createElement("div");
-                imageWrap.className = featured ? "featured-image-wrap" : "card-image-wrap";
+            body.appendChild(meta);
+            body.appendChild(createElement("h3", "story-title", articleTitle(item)));
+            body.appendChild(createElement("p", "story-description", articleDescription(item)));
 
-                const img = document.createElement("img");
-                img.className = featured ? "featured-image" : "card-image";
-                img.src = image;
-                img.alt = "";
-                img.loading = "lazy";
-                img.onerror = () => imageWrap.remove();
+            const actions = createElement("div", "story-actions");
+            const summarizeButton = createElement(
+                "button",
+                "story-action summarize-story",
+                "✦ Summarize"
+            );
 
-                imageWrap.appendChild(img);
-                card.appendChild(imageWrap);
-            }
+            summarizeButton.type = "button";
+            summarizeButton.addEventListener("click", () => {
+                articleInput.value = `${articleTitle(item)}\n\n${articleDescription(item)}`;
+                updateCharacterCount();
 
-            const body = document.createElement("div");
-            body.className = featured ? "featured-body" : "news-card-body";
-
-            const meta = document.createElement("div");
-            meta.className = "story-meta";
-
-            const sourceSpan = document.createElement("span");
-            sourceSpan.className = "story-source";
-            sourceSpan.textContent = source;
-
-            meta.appendChild(sourceSpan);
-
-            if (date) {
-                const dateSpan = document.createElement("span");
-                dateSpan.textContent = date;
-                meta.appendChild(dateSpan);
-            }
-
-            const heading = document.createElement("h3");
-            heading.textContent = title;
-
-            const descriptionEl = document.createElement("p");
-            descriptionEl.className = featured
-                ? "featured-description"
-                : "news-card-description";
-            descriptionEl.textContent = description;
-
-            const actions = document.createElement("div");
-            actions.className = "story-actions";
-
-            const summarizeLink = document.createElement("button");
-            summarizeLink.type = "button";
-            summarizeLink.className = "story-summarize";
-            summarizeLink.textContent = "Summarize this →";
-            summarizeLink.addEventListener("click", () => {
-                articleInput.value = [title, description].join("\n\n");
-                articleInput.dispatchEvent(new Event("input"));
                 document.getElementById("summarizer").scrollIntoView({
-                    behavior: "smooth"
+                    behavior: "smooth",
+                    block: "start"
                 });
+
                 articleInput.focus({ preventScroll: true });
             });
 
-            actions.appendChild(summarizeLink);
+            actions.appendChild(summarizeButton);
+
+            const url = articleUrl(item);
 
             if (url) {
-                const readLink = document.createElement("a");
-                readLink.href = url;
-                readLink.target = "_blank";
-                readLink.rel = "noopener noreferrer";
-                readLink.className = "read-link";
-                readLink.textContent = "Read original ↗";
-                actions.appendChild(readLink);
+                try {
+                    const parsedUrl = new URL(url, window.location.href);
+
+                    if (["http:", "https:"].includes(parsedUrl.protocol)) {
+                        const readLink = document.createElement("a");
+                        readLink.className = "story-action read-original";
+                        readLink.href = parsedUrl.href;
+                        readLink.target = "_blank";
+                        readLink.rel = "noopener noreferrer";
+                        readLink.textContent = "Read article ↗";
+                        actions.appendChild(readLink);
+                    }
+                } catch (error) {
+                    // Ignore invalid article URLs.
+                }
             }
 
-            body.append(meta, heading, descriptionEl, actions);
+            actions.appendChild(createBookmarkButton(item));
+            body.appendChild(actions);
+
+            if (savedView) {
+                const removeButton = createElement(
+                    "button",
+                    "remove-saved-button",
+                    "Remove from saved"
+                );
+
+                removeButton.type = "button";
+                removeButton.addEventListener("click", () => toggleBookmark(item));
+                body.appendChild(removeButton);
+            }
+
             card.appendChild(body);
+            updateBookmarkButtons();
             return card;
         }
 
-        async function loadNews(category = "general") {
-            currentCategory = category;
-            featuredNews.replaceChildren();
-            newsGrid.replaceChildren();
-            emptyNews.hidden = true;
-            newsStatus.hidden = false;
-            newsStatus.textContent = "Loading the latest headlines...";
-            newsStatus.className = "news-status";
+        function renderSavedStories() {
+            const stories = getSavedStories();
 
-            document.querySelectorAll(".category").forEach(button => {
-                const active = button.dataset.category === category;
-                button.classList.toggle("active", active);
-                button.setAttribute("aria-pressed", String(active));
+            savedCount.textContent = `${stories.length} saved`;
+            savedGrid.replaceChildren();
+            savedEmpty.hidden = stories.length > 0;
+
+            stories.forEach(story => {
+                savedGrid.appendChild(makeStory(story, false, true));
             });
 
-            const categoryLabels = {
-                general: "THE DAILY EDITION",
-                technology: "TECHNOLOGY EDITION",
-                business: "BUSINESS EDITION",
-                science: "SCIENCE EDITION",
-                health: "HEALTH EDITION",
-                world: "WORLD EDITION"
-            };
-            document.getElementById("sectionLabel").textContent =
-                categoryLabels[category] || "THE DAILY EDITION";
+            updateBookmarkButtons();
+        }
+
+        function updateTicker(articles) {
+            tickerTrack.replaceChildren();
+
+            const titles = articles
+                .map(articleTitle)
+                .filter(title => title && title !== "Untitled story");
+
+            const tickerContent = (
+                titles.length
+                    ? titles.slice(0, 12)
+                    : ["Welcome to Briefly AI — your daily news briefing."]
+            ).join("     •     ") + "     •     ";
+
+            tickerTrack.appendChild(createElement("span", "ticker-message", tickerContent));
+
+            const duplicate = createElement("span", "ticker-message", tickerContent);
+            duplicate.setAttribute("aria-hidden", "true");
+            tickerTrack.appendChild(duplicate);
+
+            tickerTrack.classList.toggle("ticker-paused", tickerPaused);
+        }
+
+        tickerToggle.addEventListener("click", () => {
+            tickerPaused = !tickerPaused;
+            tickerTrack.classList.toggle("ticker-paused", tickerPaused);
+            tickerToggle.textContent = tickerPaused ? "▶" : "Ⅱ";
+            tickerToggle.setAttribute(
+                "aria-label",
+                tickerPaused ? "Resume headline ticker" : "Pause headline ticker"
+            );
+        });
+
+        async function loadNews() {
+            newsStatus.hidden = false;
+            newsStatus.className = "status-message";
+            newsStatus.textContent = "Loading the latest news...";
+            featuredNews.replaceChildren();
+            newsGrid.replaceChildren();
 
             try {
                 const response = await fetch(
-                    "/api/news?category=" + encodeURIComponent(category),
+                    `${API_NEWS_URL}?category=${encodeURIComponent(currentCategory)}`,
                     { headers: { "Accept": "application/json" } }
                 );
 
                 if (!response.ok) {
-                    throw new Error("News service returned HTTP " + response.status);
+                    throw new Error(`News request failed (${response.status}).`);
                 }
 
                 const data = await response.json();
-                const articles = getArticleList(data).filter(item => item && typeof item === "object");
+                const articles = getArticleList(data);
+
+                updateTicker(articles);
+                renderSavedStories();
 
                 if (!articles.length) {
-                    throw new Error("No news articles were returned by the news API.");
+                    newsStatus.textContent =
+                        "No news stories were returned. Try refreshing or selecting another category.";
+                    return;
                 }
 
+                newsStatus.hidden = true;
+
+                const categoryNames = {
+                    general: "Top Stories",
+                    technology: "Technology",
+                    business: "Business",
+                    science: "Science",
+                    health: "Health",
+                    world: "World"
+                };
+
+                newsSubtitle.textContent =
+                    `${categoryNames[currentCategory] || "Latest"} — stories worth your attention.`;
+
                 featuredNews.appendChild(makeStory(articles[0], true));
-                articles.slice(1, 7).forEach(item => {
-                    newsGrid.appendChild(makeStory(item));
+
+                articles.slice(1).forEach(article => {
+                    newsGrid.appendChild(makeStory(article));
                 });
 
-                newsStatus.textContent = "Showing " + Math.min(articles.length, 7) +
-                    " stories · " + (categoryLabels[category] || "LATEST NEWS");
-                newsStatus.className = "news-status news-status-success";
-                emptyNews.hidden = true;
+                updateBookmarkButtons();
             } catch (error) {
+                console.error("Could not load news:", error);
+                newsStatus.hidden = false;
+                newsStatus.className = "status-message error-message";
                 newsStatus.textContent =
-                    "We couldn't load the headlines. You can still paste an article below to summarize it.";
-                newsStatus.className = "news-status news-status-error";
-                emptyNews.hidden = false;
-                console.error("News loading error:", error);
+                    "We couldn't load the news. Please check your connection and try again.";
             }
         }
 
-        document.querySelectorAll(".category").forEach(button => {
+        document.querySelectorAll(".category-button").forEach(button => {
             button.addEventListener("click", () => {
-                loadNews(button.dataset.category);
+                const category = button.dataset.category;
+
+                if (!category || category === currentCategory) return;
+
+                currentCategory = category;
+
+                document.querySelectorAll(".category-button").forEach(item => {
+                    item.classList.toggle("active", item === button);
+                });
+
+                loadNews();
             });
         });
 
-        document.getElementById("refreshNews").addEventListener("click", () => {
-            loadNews(currentCategory);
+        document.getElementById("refreshNews").addEventListener("click", loadNews);
+
+        function applyTheme(theme) {
+            const selectedTheme = theme === "dark" ? "dark" : "light";
+            document.documentElement.dataset.theme = selectedTheme;
+
+            const isDark = selectedTheme === "dark";
+
+            document.getElementById("themeIcon").textContent = isDark ? "☀" : "☾";
+            document.getElementById("themeLabel").textContent =
+                isDark ? "Light mode" : "Dark mode";
+
+            document.getElementById("themeToggle").setAttribute(
+                "aria-label",
+                isDark ? "Switch to light mode" : "Switch to dark mode"
+            );
+
+            try {
+                localStorage.setItem(STORAGE_THEME, selectedTheme);
+            } catch (error) {
+                // Theme remains active for this session.
+            }
+        }
+
+        document.getElementById("themeToggle").addEventListener("click", () => {
+            const currentTheme = document.documentElement.dataset.theme || "light";
+            applyTheme(currentTheme === "dark" ? "light" : "dark");
         });
 
-        summarizeBtn.addEventListener("click", summarizeNews);
+        let initialTheme = "light";
 
-        async function summarizeNews() {
+        try {
+            initialTheme = localStorage.getItem(STORAGE_THEME) || "light";
+        } catch (error) {
+            // Default to light mode.
+        }
+
+        applyTheme(initialTheme);
+
+        function updateCharacterCount() {
+            characterCount.textContent =
+                `${articleInput.value.length.toLocaleString()} characters`;
+        }
+
+        articleInput.addEventListener("input", updateCharacterCount);
+
+        document.getElementById("clearArticle").addEventListener("click", () => {
+            articleInput.value = "";
+            updateCharacterCount();
+            summaryStatus.textContent = "";
+            summaryResult.hidden = true;
+        });
+
+        summarizeButton.addEventListener("click", async () => {
             const article = articleInput.value.trim();
 
             if (!article) {
-                showSummaryStatus("Paste a news article before summarizing.", "error");
+                summaryStatus.className = "summary-status error-message";
+                summaryStatus.textContent = "Please paste an article before summarizing.";
                 articleInput.focus();
                 return;
             }
 
-            summarizeBtn.disabled = true;
-            buttonText.textContent = "Summarizing...";
-            summaryOutput.hidden = true;
-            showSummaryStatus("", "");
+            if (summaryInProgress) return;
 
-            const loading = document.createElement("div");
-            loading.className = "summary-loading";
-            loading.id = "summaryLoading";
-
-            const spinner = document.createElement("span");
-            spinner.className = "mini-spinner";
-
-            const loadingText = document.createElement("span");
-            loadingText.textContent = "AI is reading your article...";
-
-            loading.append(spinner, loadingText);
-            summaryStatus.appendChild(loading);
+            summaryInProgress = true;
+            summarizeButton.disabled = true;
+            summarizeButtonText.textContent = "Preparing your summary...";
+            summaryStatus.className = "summary-status";
+            summaryStatus.textContent = "Briefly AI is preparing your summary. Please wait.";
+            summaryResult.hidden = true;
 
             try {
-                const response = await fetch("/summarize", {
+                const response = await fetch(SUMMARIZE_URL, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -455,65 +677,72 @@
                     body: JSON.stringify({ article: article })
                 });
 
-                const data = await response.json();
+                let data;
+
+                try {
+                    data = await response.json();
+                } catch (error) {
+                    throw new Error("The server returned an unexpected response.");
+                }
 
                 if (!response.ok) {
                     throw new Error(
-                        data.error || data.message || "The server could not summarize this article."
+                        data.error || data.message || "The article could not be summarized."
                     );
                 }
 
-                if (!data.summary || typeof data.summary !== "string") {
-                    throw new Error(
-                        data.error || data.message || "The server did not return a summary."
-                    );
+                const summary = data.summary || data.summarized_text || data.result;
+
+                if (!summary) {
+                    throw new Error("The server did not return a summary.");
                 }
 
-                currentSummary = data.summary;
-                summaryText.textContent = currentSummary;
-                summaryOutput.hidden = false;
-                showSummaryStatus("Summary generated successfully.", "success");
+                summaryText.textContent = summary;
+                summaryResult.hidden = false;
+                summaryStatus.textContent = "";
 
-                summaryOutput.scrollIntoView({
+                summaryResult.scrollIntoView({
                     behavior: "smooth",
                     block: "nearest"
                 });
             } catch (error) {
-                showSummaryStatus(
-                    error.message || "Something went wrong. Please try again.",
-                    "error"
-                );
+                console.error("Summarization error:", error);
+                summaryStatus.className = "summary-status error-message";
+                summaryStatus.textContent =
+                    error.message || "Something went wrong. Please try again.";
             } finally {
-                summarizeBtn.disabled = false;
-                buttonText.textContent = "Summarize with AI";
-            }
-        }
-
-        function showSummaryStatus(message, type) {
-            summaryStatus.replaceChildren();
-            summaryStatus.className = "summary-status" + (type ? " " + type : "");
-
-            if (message) {
-                summaryStatus.textContent = message;
-            }
-        }
-
-        document.getElementById("copySummary").addEventListener("click", async () => {
-            if (!currentSummary) return;
-
-            try {
-                await navigator.clipboard.writeText(currentSummary);
-                document.getElementById("copySummary").textContent = "Copied!";
-            } catch (error) {
-                const range = document.createRange();
-                range.selectNodeContents(summaryText);
-                const selection = window.getSelection();
-                selection.removeAllRanges();
-                selection.addRange(range);
-                document.getElementById("copySummary").textContent = "Select and copy";
+                summaryInProgress = false;
+                summarizeButton.disabled = false;
+                summarizeButtonText.textContent = "✦ Summarize with AI";
             }
         });
 
+        document.getElementById("copySummary").addEventListener("click", async () => {
+            const text = summaryText.textContent;
+            const copyButton = document.getElementById("copySummary");
+
+            try {
+                await navigator.clipboard.writeText(text);
+                copyButton.textContent = "Copied ✓";
+            } catch (error) {
+                const temporaryInput = document.createElement("textarea");
+                temporaryInput.value = text;
+                temporaryInput.style.position = "fixed";
+                temporaryInput.style.opacity = "0";
+                document.body.appendChild(temporaryInput);
+                temporaryInput.select();
+
+                const copied = document.execCommand("copy");
+                temporaryInput.remove();
+                copyButton.textContent = copied ? "Copied ✓" : "Copy unavailable";
+            }
+
+            setTimeout(() => {
+                copyButton.textContent = "Copy summary";
+            }, 1800);
+        });
+
+        renderSavedStories();
         loadNews();
     </script>
 </body>
