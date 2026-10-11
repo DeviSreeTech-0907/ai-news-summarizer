@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Briefly AI | News Dashboard</title>
+    <meta name="theme-color" content="#101022">
+    <meta name="description" content="Briefly AI turns news articles into clear summaries, key facts, and useful context.">
+    <title>Briefly AI | Intelligent News Analysis</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -16,43 +18,60 @@
     <main class="container">
         <section class="hero">
             <div class="eyebrow">YOUR PERSONAL NEWSROOM</div>
-            <h1>The world, <span>in brief.</span></h1>
-            <p>Explore headlines and turn long stories into quick summaries.</p>
+            <h1>The world,<br><span>in brief.</span></h1>
+            <p>Discover important stories. Understand the facts. Get the bigger picture.</p>
 
             <form id="searchForm" class="searchbar">
                 <input id="searchInput" type="search"
-                    placeholder="Search news topics..." aria-label="Search news">
+                    placeholder="Search technology, business, science..."
+                    aria-label="Search news">
                 <button type="submit">Search</button>
             </form>
         </section>
 
-        <section class="summarizer panel">
-            <div>
-                <div class="eyebrow">AI TOOL</div>
-                <h2>Summarize any article</h2>
+        <section class="summarizer panel" id="summarizer">
+            <div class="summary-heading">
+                <div>
+                    <div class="eyebrow">POWERED BY AI</div>
+                    <h2>News Intelligence</h2>
+                    <p>Turn an article into an actionable, structured briefing.</p>
+                </div>
+                <div class="ai-badge">✦ AI ANALYSIS</div>
             </div>
-            <textarea id="articleInput"
-                placeholder="Paste a news article here..."></textarea>
-            <button id="summarizeBtn" class="primary" type="button">
-                ✦ Summarize News
-            </button>
-            <div id="summaryOutput" class="summary-output">
-                Your summary will appear here.
+
+            <label for="articleInput">Article text</label>
+            <textarea id="articleInput" rows="7"
+                placeholder="Paste a news article here, or choose Summarize on any news card below..."></textarea>
+
+            <div class="summary-controls">
+                <span id="characterCount">0 characters</span>
+                <button id="summarizeBtn" class="primary" type="button">
+                    ✦ Analyze Article
+                </button>
+            </div>
+
+            <div id="summaryOutput" class="summary-output" aria-live="polite">
+                <div class="empty-state">
+                    <div class="empty-icon">✦</div>
+                    <h3>Your news briefing starts here</h3>
+                    <p>Choose an article or paste text above to see the overview, key developments, impact, and important facts.</p>
+                </div>
             </div>
         </section>
 
         <section class="news-section">
             <div class="section-heading">
                 <div>
-                    <div class="eyebrow">STAY INFORMED</div>
+                    <div class="eyebrow">THE LATEST</div>
                     <h2 id="newsHeading">Top Headlines</h2>
+                    <p>Stories selected from news sources.</p>
                 </div>
                 <button id="refreshBtn" class="secondary" type="button">
                     ↻ Refresh
                 </button>
             </div>
 
-            <nav class="categories" id="categories">
+            <nav class="categories" id="categories" aria-label="News categories">
                 <button class="category active" data-category="general">Top</button>
                 <button class="category" data-category="world">World</button>
                 <button class="category" data-category="nation">India</button>
@@ -64,19 +83,32 @@
                 <button class="category" data-category="entertainment">Entertainment</button>
             </nav>
 
-            <p id="newsStatus" class="status">Loading news...</p>
+            <p id="newsStatus" class="status" aria-live="polite">Loading news...</p>
             <div id="newsGrid" class="news-grid"></div>
         </section>
     </main>
 
-    <footer>Briefly AI · News for curious minds</footer>
+    <footer>
+        <a class="brand footer-brand" href="/">Briefly<span>AI</span></a>
+        <p>News for curious minds. AI-generated analysis based on the provided article.</p>
+    </footer>
 
     <script>
         const grid = document.getElementById("newsGrid");
         const statusText = document.getElementById("newsStatus");
         const heading = document.getElementById("newsHeading");
         const summaryOutput = document.getElementById("summaryOutput");
+        const articleInput = document.getElementById("articleInput");
+        const summarizeBtn = document.getElementById("summarizeBtn");
+        const characterCount = document.getElementById("characterCount");
+
         let currentCategory = "general";
+        let requestNumber = 0;
+
+        articleInput.addEventListener("input", () => {
+            characterCount.textContent =
+                `${articleInput.value.length.toLocaleString()} characters`;
+        });
 
         async function loadNews(category = "general") {
             currentCategory = category;
@@ -99,7 +131,9 @@
                 );
                 const data = await response.json();
 
-                if (!response.ok) throw new Error(data.error || "Could not load news.");
+                if (!response.ok) {
+                    throw new Error(data.error || "Could not load news.");
+                }
 
                 renderNews(data.articles || []);
                 statusText.textContent = data.articles?.length
@@ -131,7 +165,7 @@
 
                 const source = document.createElement("div");
                 source.className = "source";
-                source.textContent = article.source?.name || "News";
+                source.textContent = article.source?.name || "News source";
 
                 const title = document.createElement("h3");
                 title.textContent = article.title || "Untitled story";
@@ -145,19 +179,23 @@
 
                 const summarizeButton = document.createElement("button");
                 summarizeButton.className = "small-button";
-                summarizeButton.textContent = "✦ Summarize";
+                summarizeButton.textContent = "✦ Analyze";
                 summarizeButton.addEventListener("click", () => {
                     const text = [
                         article.title,
                         article.description,
                         article.content
-                    ].filter(Boolean).join(". ");
+                    ].filter(Boolean).join("\n\n");
 
-                    document.getElementById("articleInput").value = text;
-                    summarizeArticle(text);
-                    document.querySelector(".summarizer").scrollIntoView({
+                    articleInput.value = text;
+                    characterCount.textContent =
+                        `${text.length.toLocaleString()} characters`;
+
+                    document.getElementById("summarizer").scrollIntoView({
                         behavior: "smooth", block: "start"
                     });
+
+                    summarizeArticle(text);
                 });
 
                 const link = document.createElement("a");
@@ -174,38 +212,163 @@
             });
         }
 
+        function createElement(tag, className, text) {
+            const element = document.createElement(tag);
+            if (className) element.className = className;
+            if (text !== undefined) element.textContent = text;
+            return element;
+        }
+
+        function renderList(items) {
+            const list = createElement("ul", "analysis-list");
+
+            if (!Array.isArray(items) || items.length === 0) {
+                list.appendChild(createElement("li", "", "No additional details provided."));
+                return list;
+            }
+
+            items.forEach(item => {
+                list.appendChild(createElement("li", "", String(item)));
+            });
+
+            return list;
+        }
+
+        function renderSummary(data) {
+            summaryOutput.replaceChildren();
+
+            const header = createElement("div", "analysis-header");
+            header.appendChild(createElement("span", "eyebrow", "AI-GENERATED BRIEFING"));
+            header.appendChild(createElement("h3", "analysis-headline",
+                data.headline || "News Analysis"));
+
+            const mode = createElement("span", "analysis-mode",
+                data.mode || "AI analysis");
+            header.appendChild(mode);
+            summaryOutput.appendChild(header);
+
+            const sections = [
+                {
+                    icon: "01",
+                    title: "News Overview",
+                    content: createElement("p", "overview-text",
+                        data.summary || "No overview available.")
+                },
+                {
+                    icon: "02",
+                    title: "Key Developments",
+                    content: renderList(data.key_developments)
+                },
+                {
+                    icon: "03",
+                    title: "Why It Matters",
+                    content: createElement("p", "impact-text",
+                        data.why_it_matters || "No additional context provided.")
+                },
+                {
+                    icon: "04",
+                    title: "Important Details",
+                    content: renderList(data.important_details)
+                },
+                {
+                    icon: "05",
+                    title: "Source Limitations",
+                    content: createElement("p", "limitations-text",
+                        data.source_limitations || "No limitations reported by the AI.")
+                }
+            ];
+
+            const sectionGrid = createElement("div", "analysis-grid");
+
+            sections.forEach(section => {
+                const card = createElement("section", "analysis-card");
+                const sectionTitle = createElement("h4", "analysis-section-title");
+                sectionTitle.appendChild(createElement("span", "section-number", section.icon));
+                sectionTitle.appendChild(document.createTextNode(section.title));
+
+                card.appendChild(sectionTitle);
+                card.appendChild(section.content);
+                sectionGrid.appendChild(card);
+            });
+
+            summaryOutput.appendChild(sectionGrid);
+
+            const footer = createElement("p", "analysis-disclaimer",
+                "AI-generated analysis may contain errors. Verify important claims with the original reporting.");
+            summaryOutput.appendChild(footer);
+
+            const copyButton = createElement("button", "secondary", "Copy briefing");
+            copyButton.type = "button";
+            copyButton.addEventListener("click", async () => {
+                const briefing = [
+                    data.headline,
+                    "NEWS OVERVIEW\n" + data.summary,
+                    "KEY DEVELOPMENTS\n" + (data.key_developments || []).map(x => "- " + x).join("\n"),
+                    "WHY IT MATTERS\n" + data.why_it_matters,
+                    "IMPORTANT DETAILS\n" + (data.important_details || []).map(x => "- " + x).join("\n"),
+                    "SOURCE LIMITATIONS\n" + data.source_limitations
+                ].join("\n\n");
+
+                try {
+                    await navigator.clipboard.writeText(briefing);
+                    copyButton.textContent = "Copied!";
+                } catch {
+                    copyButton.textContent = "Copy unavailable";
+                }
+            });
+
+            summaryOutput.appendChild(copyButton);
+        }
+
         async function summarizeArticle(article) {
-            summaryOutput.textContent = "Generating summary...";
-            document.getElementById("summarizeBtn").disabled = true;
+            const text = article.trim();
+
+            if (!text) {
+                summaryOutput.replaceChildren(
+                    createElement("p", "error-message", "Please paste an article or choose a news story first.")
+                );
+                return;
+            }
+
+            const thisRequest = ++requestNumber;
+            summaryOutput.replaceChildren(
+                createElement("div", "loading-state", "✦ Analyzing article and preparing your briefing...")
+            );
+
+            summarizeBtn.disabled = true;
+            summarizeBtn.textContent = "Analyzing...";
 
             try {
                 const response = await fetch("/summarize", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({article})
+                    body: JSON.stringify({article: text})
                 });
 
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error || "Summary failed.");
+                if (!response.ok) {
+                    throw new Error(data.error || "Summary failed.");
+                }
 
-                summaryOutput.replaceChildren();
-
-                const text = document.createElement("p");
-                text.textContent = data.summary || "No summary returned.";
-
-                const mode = document.createElement("small");
-                mode.textContent = "Method: " + (data.mode || "Unknown");
-
-                summaryOutput.append(text, mode);
+                if (thisRequest === requestNumber) {
+                    renderSummary(data);
+                }
             } catch (error) {
-                summaryOutput.textContent = error.message;
+                if (thisRequest === requestNumber) {
+                    summaryOutput.replaceChildren(
+                        createElement("p", "error-message", error.message)
+                    );
+                }
             } finally {
-                document.getElementById("summarizeBtn").disabled = false;
+                if (thisRequest === requestNumber) {
+                    summarizeBtn.disabled = false;
+                    summarizeBtn.textContent = "✦ Analyze Article";
+                }
             }
         }
 
-        document.getElementById("summarizeBtn").addEventListener("click", () => {
-            summarizeArticle(document.getElementById("articleInput").value.trim());
+        summarizeBtn.addEventListener("click", () => {
+            summarizeArticle(articleInput.value);
         });
 
         document.querySelectorAll(".category").forEach(button => {
@@ -226,10 +389,14 @@
             statusText.textContent = "Searching news...";
 
             try {
-                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                const response = await fetch(
+                    `/api/search?q=${encodeURIComponent(query)}`
+                );
                 const data = await response.json();
 
-                if (!response.ok) throw new Error(data.error || "Search failed.");
+                if (!response.ok) {
+                    throw new Error(data.error || "Search failed.");
+                }
 
                 renderNews(data.articles || []);
                 statusText.textContent = data.articles?.length

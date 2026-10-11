@@ -1,5 +1,6 @@
-flask
-python-dotenv
-huggingface_hub
+
+Flask
 requests
+python-dotenv
+google-genai
 gunicorn
