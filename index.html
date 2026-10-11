@@ -1,52 +1,171 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI News Summarizer</title>
+    <title>Briefly AI | News Summarizer</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <header>
-        <h1>AI News Summarizer</h1>
-        <p>Your daily news, simplified.</p>
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-icon">B</span>
+            <span>Briefly <span class="brand-ai">AI</span></span>
+        </div>
+        <span class="header-label">YOUR DAILY NEWS COMPANION</span>
     </header>
 
-    <main>
-        <section class="welcome">
-            <h2>Understand more. Read less.</h2>
-            <p>Turn long news articles into short summaries.</p>
+    <main class="container">
+        <section class="hero">
+            <p class="eyebrow">LESS READING. MORE UNDERSTANDING.</p>
+            <h1>Big news.<br><span>Simply explained.</span></h1>
+            <p class="hero-description">
+                Turn long news articles into clear, concise summaries
+                with the power of AI.
+            </p>
+        </section>
 
-            <textarea id="article" placeholder="Paste a news article here..."></textarea>
-            <button id="summarizeBtn" onclick="summarizeNews()">Summarize News</button>
-            <p id="message">Your summary will appear here.</p>
+        <section class="summarizer-card">
+            <div class="card-heading">
+                <div>
+                    <h2>Summarize an article</h2>
+                    <p>Paste your news article below to get started.</p>
+                </div>
+                <span class="ai-badge">✦ AI POWERED</span>
+            </div>
+
+            <label for="article">NEWS ARTICLE</label>
+            <textarea
+                id="article"
+                placeholder="Paste your news article here..."
+                rows="9"
+            ></textarea>
+
+            <div class="input-footer">
+                <span id="charCount">0 characters</span>
+                <button id="summarizeBtn" onclick="summarizeNews()">
+                    <span>Summarize News</span>
+                    <span aria-hidden="true"> →</span>
+                </button>
+            </div>
+
+            <div id="status" class="status" role="status">
+                Your summary will appear below.
+            </div>
+
+            <section id="resultSection" class="result-section" hidden>
+                <div class="result-heading">
+                    <span class="result-icon">✦</span>
+                    <div>
+                        <h2>Your Summary</h2>
+                        <p>Here's the important information.</p>
+                    </div>
+                </div>
+                <div id="summaryResult" class="summary-result"></div>
+            </section>
+        </section>
+
+        <section class="features">
+            <div class="feature">
+                <span class="feature-icon">✦</span>
+                <div>
+                    <h3>AI-powered</h3>
+                    <p>Smart, easy-to-read summaries</p>
+                </div>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">◷</span>
+                <div>
+                    <h3>Save your time</h3>
+                    <p>Get the key points faster</p>
+                </div>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">◎</span>
+                <div>
+                    <h3>Simple and clear</h3>
+                    <p>Focus on what matters</p>
+                </div>
+            </div>
         </section>
     </main>
 
-    <script>
-        async function summarizeNews() {
-            const article = document.getElementById("article").value;
-            const message = document.getElementById("message");
-            const button = document.getElementById("summarizeBtn");
+    <footer>
+        <p>Briefly AI · Understand more. Read less.</p>
+    </footer>
 
-            button.disabled = true;
-            message.textContent = "Summarizing...";
+    <script>
+        const articleInput = document.getElementById("article");
+        const summarizeBtn = document.getElementById("summarizeBtn");
+        const statusMessage = document.getElementById("status");
+        const resultSection = document.getElementById("resultSection");
+        const summaryResult = document.getElementById("summaryResult");
+        const charCount = document.getElementById("charCount");
+
+        articleInput.addEventListener("input", function () {
+            charCount.textContent =
+                this.value.length.toLocaleString() + " characters";
+        });
+
+        async function summarizeNews() {
+            const article = articleInput.value.trim();
+
+            if (!article) {
+                statusMessage.textContent =
+                    "Please paste a news article first.";
+                statusMessage.className = "status error";
+                articleInput.focus();
+                return;
+            }
+
+            summarizeBtn.disabled = true;
+            summarizeBtn.innerHTML = "<span>Summarizing...</span>";
+            statusMessage.textContent = "Please wait while AI summarizes your article...";
+            statusMessage.className = "status loading";
+            resultSection.hidden = true;
 
             try {
                 const response = await fetch("/summarize", {
                     method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({article: article})
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ article: article })
                 });
 
                 const data = await response.json();
-                message.textContent = data.summary;
-            } catch (error) {
-                message.textContent = "Something went wrong. Please try again.";
-            }
 
-            button.disabled = false;
+                if (!response.ok) {
+                    throw new Error(
+                        data.error || data.message || "Unable to summarize the article."
+                    );
+                }
+
+                if (!data.summary) {
+                    throw new Error(
+                        data.error || data.message || "No summary was returned by the server."
+                    );
+                }
+
+                summaryResult.textContent = data.summary;
+                resultSection.hidden = false;
+                statusMessage.textContent = "Summary generated successfully!";
+                statusMessage.className = "status success";
+
+                resultSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+            } catch (error) {
+                statusMessage.textContent =
+                    error.message || "Something went wrong. Please try again.";
+                statusMessage.className = "status error";
+            } finally {
+                summarizeBtn.disabled = false;
+                summarizeBtn.innerHTML =
+                    "<span>Summarize News</span><span aria-hidden='true'> →</span>";
+            }
         }
     </script>
 </body>
