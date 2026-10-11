@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI News Summarizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>AI News Summarizer</h1>
+        <p>Your daily news, simplified.</p>
+    </header>
+
+    <main>
+        <section class="welcome">
+            <h2>Understand more. Read less.</h2>
+            <p>Turn long news articles into short summaries.</p>
+
+            <textarea id="article" placeholder="Paste a news article here..."></textarea>
+            <button id="summarizeBtn" onclick="summarizeNews()">Summarize News</button>
+            <p id="message">Your summary will appear here.</p>
+        </section>
+    </main>
+
+    <script>
+        async function summarizeNews() {
+            const article = document.getElementById("article").value;
+            const message = document.getElementById("message");
+            const button = document.getElementById("summarizeBtn");
+
+            button.disabled = true;
+            message.textContent = "Summarizing...";
+
+            try {
+                const response = await fetch("/summarize", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({article: article})
+                });
+
+                const data = await response.json();
+                message.textContent = data.summary;
+            } catch (error) {
+                message.textContent = "Something went wrong. Please try again.";
+            }
+
+            button.disabled = false;
+        }
+    </script>
+</body>
+</html>
