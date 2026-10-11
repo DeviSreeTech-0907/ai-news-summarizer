@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Briefly AI | News Summarizer</title>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -36,17 +36,12 @@
             </div>
 
             <label for="article">NEWS ARTICLE</label>
-            <textarea
-                id="article"
-                placeholder="Paste your news article here..."
-                rows="9"
-            ></textarea>
+            <textarea id="article" placeholder="Paste a news article here..." rows="9"></textarea>
 
             <div class="input-footer">
                 <span id="charCount">0 characters</span>
                 <button id="summarizeBtn" onclick="summarizeNews()">
-                    <span>Summarize News</span>
-                    <span aria-hidden="true"> →</span>
+                    Summarize News →
                 </button>
             </div>
 
@@ -104,23 +99,21 @@
         const charCount = document.getElementById("charCount");
 
         articleInput.addEventListener("input", function () {
-            charCount.textContent =
-                this.value.length.toLocaleString() + " characters";
+            charCount.textContent = this.value.length + " characters";
         });
 
         async function summarizeNews() {
             const article = articleInput.value.trim();
 
             if (!article) {
-                statusMessage.textContent =
-                    "Please paste a news article first.";
+                statusMessage.textContent = "Please paste a news article first.";
                 statusMessage.className = "status error";
                 articleInput.focus();
                 return;
             }
 
             summarizeBtn.disabled = true;
-            summarizeBtn.innerHTML = "<span>Summarizing...</span>";
+            summarizeBtn.textContent = "Summarizing...";
             statusMessage.textContent = "Please wait while AI summarizes your article...";
             statusMessage.className = "status loading";
             resultSection.hidden = true;
@@ -144,7 +137,7 @@
 
                 if (!data.summary) {
                     throw new Error(
-                        data.error || data.message || "No summary was returned by the server."
+                        data.error || data.message || "No summary was returned."
                     );
                 }
 
@@ -163,8 +156,7 @@
                 statusMessage.className = "status error";
             } finally {
                 summarizeBtn.disabled = false;
-                summarizeBtn.innerHTML =
-                    "<span>Summarize News</span><span aria-hidden='true'> →</span>";
+                summarizeBtn.textContent = "Summarize News →";
             }
         }
     </script>
